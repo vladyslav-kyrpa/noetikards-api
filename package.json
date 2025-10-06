@@ -1,0 +1,35 @@
+{
+  "name": "noetikards-api",
+  "version": "1.0.0",
+  "description": "API for Noetikards flashcards learning system",
+  "keywords": [
+    "flashcards",
+    "memo",
+    "api",
+    "node"
+  ],
+  "homepage": "https://github.com/vladyslav-kyrpa/noetikards-api#readme",
+  "bugs": {
+    "url": "https://github.com/vladyslav-kyrpa/noetikards-api/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vladyslav-kyrpa/noetikards-api.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "dev": "nodemon --require dotenv/config main.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "mongoose": "^8.19.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
