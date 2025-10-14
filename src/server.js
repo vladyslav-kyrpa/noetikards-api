@@ -3,7 +3,8 @@ import cors from "cors";
 import requestLogging from "./middlewares/request_logging.js";
 import errorHandling from "./middlewares/error_handling.js";
 import mongo from "./data_access/mongo_db.js";
-import log from "./utils/logger.js"
+import log from "./utils/logger.js";
+import authRoutes from "./routes/authentication_routes.js";
 
 export async function run() {
     // db connection
@@ -31,9 +32,12 @@ export async function run() {
     }));
     app.options('/', cors());
 
+    app.use(express.json());
+
     app.use(requestLogging);
 
     // todo: add routes here
+    app.use("/auth", authRoutes);
 
     // global error handling
     app.use(errorHandling);

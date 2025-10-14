@@ -1,32 +1,21 @@
-const level = process.env.LOGGING_LEVEL ?? 2;
+import winston from "winston";
+const { combine, timestamp, json, errors } = winston.format;
 
-export function debug(message) {
-    if (level <= 1)
-        printMessage(message, "DEBUG");
-}
+const logLevel = process.env.LOGGING_LEVEL ?? "info";
 
-export function info(message) {
-    if (level <= 2)
-        printMessage(message, "INFO");
-}
+const logger = winston.createLogger({
+    level: logLevel,
+    format: combine(
+        timestamp(),
+        errors({ stack: true }),
+        json()
+    ),
+    transports: [
+        new winston.transports.Console()
+    ],
+    exceptionHandlers: [
+        new winston.transports.Console(),
+    ]
+});
 
-export function error(message) {
-    if (level <= 3)
-        printMessage(message, "ERROR");
-}
-
-export function warning(message) {
-    if (level <= 4)
-        printMessage(message, "WARNING");
-}
-
-function printMessage(message, type) {
-    console.log(`[${getTime()}][${type}]: ${message}`);
-}
-
-function getTime() {
-    const time = new Date(Date.now());
-    return time.toISOString();
-}
-
-export default { debug, info, error, warning };
+export default logger;
