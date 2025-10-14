@@ -5,6 +5,7 @@ import errorHandling from "./middlewares/error_handling.js";
 import mongo from "./data_access/mongo_db.js";
 import log from "./utils/logger.js";
 import authRoutes from "./routes/authentication_routes.js";
+import auth from "./middlewares/jwt_authentication.js";
 
 export async function run() {
     // db connection
@@ -24,7 +25,6 @@ export async function run() {
     // config api
     const app = express();
 
-    // middlewares 
     app.use(cors({
         origin: "*",
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -36,8 +36,13 @@ export async function run() {
 
     app.use(requestLogging);
 
-    // todo: add routes here
+    // public routes 
     app.use("/auth", authRoutes);
+
+    app.use(auth);
+
+    // secure routes 
+    // ...
 
     // global error handling
     app.use(errorHandling);
