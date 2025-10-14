@@ -1,12 +1,16 @@
 import authService from "../services/authentication_service.js";
 import logger from "../utils/logger.js";
 import responses from "../utils/responses.js";
+import useTokenAuth from "../middlewares/jwt_authentication.js";
+import runMiddleware from "../middlewares/run_middlerawe.js";
+
 
 export async function login(req, res) {
     const credentials = req.body;
     if (!isValidLoginReq(credentials)) {
-        logger.info("User sent invalid data to the log-in endpoint",
-            Object.keys(credentials))
+        logger.info("User sent invalid data to the log-in endpoint", {
+            params: Object.keys(credentials)
+        });
         return responses.badRequest(res, "Invalid data format");
     }
 
@@ -27,8 +31,9 @@ export async function login(req, res) {
 export async function register(req, res) {
     const credentials = req.body;
     if (!isValidRegisterReq(credentials)) {
-        logger.info("User sent invalid data to the register endpoint",
-            Object.keys(credentials))
+        logger.info("User sent invalid data to the register endpoint", {
+            params: Object.keys(credentials)
+        });
         return responses.badRequest(res, "Invalid data format");
     }
 
@@ -44,6 +49,18 @@ export async function register(req, res) {
         logger.error("Error during user register", error);
         return responses.internalError(res);
     }
+}
+
+export async function check(req, res) {
+    await runMiddleware(req, res, useTokenAuth);
+
+    if (!req.user)
+        return responses.notAuthenticated(res);
+
+    return responses.success(res, {
+        id: req.user.id,
+        username: req.user.username
+    });
 }
 
 function isValidLoginReq({ username, password }) {

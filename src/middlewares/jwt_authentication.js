@@ -1,12 +1,13 @@
-import logger from "../utils/logger";
-import responses from "../utils/responses";
+import logger from "../utils/logger.js";
+import responses from "../utils/responses.js";
 import jwt from "jsonwebtoken";
 
 export default function useTokenAuth(req, res, next) {
     const issuerKey = process.env.JWT_KEY;
     if (!issuerKey) throw Error("JWT_KEY is not defined");
 
-    const token = req.token;
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1]; // Bearer <token>
     if (!token)
         return responses.notAuthenticated(res);
 
