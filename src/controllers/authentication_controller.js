@@ -2,8 +2,29 @@ import authService from "../services/authentication_service.js";
 import logger from "../utils/logger.js";
 import responses from "../utils/responses.js";
 
+export async function login(req, res) {
+    const credentials = req.body;
+    if (!isValidLoginReq(credentials)) {
+        logger.info("User sent invalid data to the log-in endpoint",
+            Object.keys(credentials))
+        return responses.badRequest(res, "Invalid data format");
+    }
+
+    try {
+        var result = await authService.loginUserAsync(credentials);
+        if (!result.success) {
+            logger.info(`Failed log-in attempt: ${result.error}`);
+            return responses.badRequest(res, "Invalid credentials");
+        }
+        logger.info("User have logged in");
+        return responses.success(res, { token: result.data });
+    } catch (error) {
+        logger.error("Error during user log-in", error);
+        return responses.internalError(res);
+    }
+}
+
 export async function register(req, res) {
-    logger.debug(req.body);
     const credentials = req.body;
     if (!isValidRegisterReq(credentials)) {
         logger.info("User sent invalid data to the register endpoint",
@@ -14,7 +35,7 @@ export async function register(req, res) {
     try {
         const result = await authService.registerUserAsync(credentials);
         if (!result.success) {
-            logger.info("Failed to registed new user", result.error);
+            logger.info(`Failed to registed new user: ${result.error}`);
             return responses.badRequest(res, result.error)
         }
         logger.info("Registered new user", result);
@@ -23,6 +44,10 @@ export async function register(req, res) {
         logger.error("Error during user register", error);
         return responses.internalError(res);
     }
+}
+
+function isValidLoginReq({ username, password }) {
+    return !!(username && password);
 }
 
 function isValidRegisterReq({ username, email, password }) {

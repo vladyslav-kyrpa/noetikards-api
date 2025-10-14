@@ -1,6 +1,7 @@
 import argon2 from "argon2";
 import { UserModel } from "../data_access/models/index.js";
 import results from "../utils/results.js";
+import jwt from "jsonwebtoken";
 
 /**
  * @typedef {Object} AuthServiceResult
@@ -51,4 +52,35 @@ function isPasswordValid(value) {
     return !!(value && (/\S{6,}$/));
 }
 
-export default { registerUserAsync };
+/**
+ * Validate user credentials and generate token
+ * @param {Object} credentials.login
+ * @param {Object} credentials.password
+ * @returns {Promise<AuthServiceResult>} result.data - authentication token
+ * or result.error - when credentials are invalid
+ */
+export async function loginUserAsync({ username, password }) {
+    const user = await UserModel.findOne({ username });
+    if (!user)
+        return results.fail("Invalid username");
+
+    const isValid = await argon2.verify(user.passwordHash, password);
+    if (!isValid)
+        return results.fail("Invalid password");
+
+    const issuerKey = process.env.JWT_KEY;
+    if (!issuerKey)
+        throw Error("JWT issuer key was not found");
+
+    const payload = {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+    };
+
+    const token = jwt.sign(payload, issuerKey, { expiresIn: "12h" });
+
+    return results.ok(token);
+}
+
+export default { registerUserAsync, loginUserAsync };

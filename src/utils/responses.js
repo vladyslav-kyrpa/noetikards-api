@@ -28,4 +28,11 @@ export const notImplemented = (res) => {
     });
 }
 
-export default { success, badRequest, internalError, notImplemented };
+export const notAuthenticated = (res) => {
+    return res.status(401).json({
+        success: false,
+        error: "Not authenticated"
+    });
+}
+
+export default { success, badRequest, internalError, notImplemented, notAuthenticated };
